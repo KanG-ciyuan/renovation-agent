@@ -26,5 +26,5 @@
 ## 演示方式
 
 - 本地运行：`node app.js`，浏览器访问 `localhost:3000`
-- 在线 Demo：https://diagnoses-omnivore-stylized.ngrok-free.dev
+- 支持通过 ngrok 暴露公网 Demo
 - 命令行测试：`node run-demo.js`

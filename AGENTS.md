@@ -7,7 +7,7 @@
 - Node.js 原生（无第三方依赖）
 - 前端：纯 HTML/CSS/JS，暖色调装修风格（品牌色 #b96a2f 陶土橙）
 - 可选集成：扣子（Coze）智能体 + 飞书群机器人 webhook
-- 公网访问：ngrok 隧道 → https://diagnoses-omnivore-stylized.ngrok-free.dev
+- 支持通过 ngrok 等隧道工具暴露公网访问
 
 ## 项目结构
 ```
@@ -49,7 +49,7 @@
 
 ### ✅ 已完成的
 - 本地运行正常（node app.js，端口 3000）
-- ngrok 公网隧道已配置（https://diagnoses-omnivore-stylized.ngrok-free.dev）
+- ngrok 公网隧道已配置
 - 飞书 webhook 推送正常
 - 三个演示场景输入 → 输出正确
 - 前端页面暖色调装修风格完成
@@ -79,7 +79,7 @@ AI_MODE=coze node app.js
 FEISHU_WEBHOOK_URL='你的webhook' node app.js
 
 # ngrok 公网隧道
-ngrok http --url=diagnoses-omnivore-stylized.ngrok-free.dev 3000
+ngrok http 3000
 ```
 
 ## 设计风格
