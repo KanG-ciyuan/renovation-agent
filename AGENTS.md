@@ -89,9 +89,6 @@ ngrok http --url=diagnoses-omnivore-stylized.ngrok-free.dev 3000
 - 字体：PingFang SC / Hiragino Sans GB
 - 响应式：800px 以下单列
 
-## 演示话术（投递用）
-> 我做了一个装修公司智能客服与线索跟进 Agent。用户咨询后系统自动识别意图、提取面积预算风格等关键信息、生成客服回复、评定意向等级，并输出可同步飞书的结构化线索。这个项目从场景设计到代码实现全部独立完成，目前可本地演示。
-
 ---
 
 **更新日志**
