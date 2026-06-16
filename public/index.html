@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>装修咨询 Agent Demo</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero">
+        <p class="eyebrow">AI Application Demo</p>
+        <h1>装修咨询智能客服与线索跟进 Agent</h1>
+        <p class="hero-copy">
+          面向装修公司场景，把客户咨询自动转成客服回复、客户画像、意向评级和可同步飞书的结构化数据。
+        </p>
+      </section>
+
+      <section class="panel input-panel">
+        <div class="panel-head">
+          <h2>客户输入</h2>
+          <button id="fill-sample" class="ghost-btn">填入示例</button>
+        </div>
+        <textarea
+          id="message"
+          placeholder="例如：我在红谷滩有一套89平二手房，想做奶油风，预算大概12万，多久可以开工？"
+        ></textarea>
+        <div class="actions">
+          <button id="analyze" class="primary-btn">开始分析</button>
+        </div>
+      </section>
+
+      <section id="result" class="result-grid hidden">
+        <article class="panel">
+          <h2>客服回复建议</h2>
+          <p id="reply" class="reply-box"></p>
+          <p id="reply-source" class="meta"></p>
+        </article>
+
+        <article class="panel">
+          <h2>Agent 分工</h2>
+          <div id="agents" class="agents"></div>
+        </article>
+
+        <article class="panel">
+          <h2>客户画像</h2>
+          <pre id="profile" class="code-block"></pre>
+        </article>
+
+        <article class="panel">
+          <h2>飞书推送状态</h2>
+          <pre id="feishu-status" class="code-block"></pre>
+        </article>
+
+        <article class="panel">
+          <h2>飞书同步预览</h2>
+          <pre id="payload" class="code-block"></pre>
+        </article>
+      </section>
+    </main>
+
+    <script src="/client.js"></script>
+  </body>
+  </html>
