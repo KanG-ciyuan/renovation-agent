@@ -65,3 +65,10 @@ node run-demo.js
 
 支持通过 ngrok 等隧道工具暴露公网访问
 
+## 参与共建
+
+欢迎通过 Issue 提交问题或建议，也欢迎通过 Pull Request 参与改进。请勿在 Issue、代码或配置示例中提交真实 API Key、Webhook 或客户信息。
+
+## 许可证
+
+本项目采用 [MIT License](./LICENSE) 开源。
