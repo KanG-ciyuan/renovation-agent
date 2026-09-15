@@ -196,6 +196,66 @@ async function analyzeMessage(message) {
   };
 }
 
+// Static-file containment.
+//
+// `publicDir` is the only directory this server may read from. Every request path
+// is resolved against it and then verified to still be inside it; a path that
+// escapes is rejected rather than normalised away, so traversal attempts are
+// visible instead of silently rewritten.
+//
+// This replaced an earlier `path.join(publicDir, req.url)` call, which let
+// `GET /../.env` read any file on the host (see tests/security.test.js).
+const PUBLIC_FILE_REASONS = {
+  malformed_encoding: "request path is not valid percent-encoding",
+  null_byte: "request path contains a null byte",
+  traversal_segment: "request path contains a '..' segment",
+  hidden_segment: "request path targets a dot-prefixed segment",
+  outside_public_root: "resolved path escapes the public root"
+};
+
+function resolvePublicFile(requestUrl) {
+  const rawPath = String(requestUrl == null ? "/" : requestUrl).split(/[?#]/)[0];
+
+  let decoded;
+  try {
+    // Decode exactly once. A second decode would turn `%252e%252e` into `..`,
+    // so anything still encoded after this point is treated as a literal name.
+    decoded = decodeURIComponent(rawPath);
+  } catch (error) {
+    return { ok: false, reason: "malformed_encoding" };
+  }
+
+  if (decoded.includes("\0")) {
+    return { ok: false, reason: "null_byte" };
+  }
+
+  // Treat backslashes as separators so Windows-style traversal cannot slip past
+  // a POSIX-only check when this code runs on another platform.
+  const asPosix = decoded.replace(/\\/g, "/");
+  const segments = asPosix.split("/");
+
+  if (segments.includes("..")) {
+    return { ok: false, reason: "traversal_segment" };
+  }
+
+  // Defence in depth: the public assets are ordinary files, so a dot-prefixed
+  // segment is never legitimate here and is exactly how `.env` would be named.
+  if (segments.some((segment) => segment.startsWith(".") && segment !== "." && segment !== "")) {
+    return { ok: false, reason: "hidden_segment" };
+  }
+
+  const relative = path.posix.normalize("/" + asPosix).replace(/^\/+/, "");
+  const resolved = path.resolve(publicDir, relative);
+
+  const insideRoot =
+    resolved === publicDir || resolved.startsWith(publicDir + path.sep);
+  if (!insideRoot) {
+    return { ok: false, reason: "outside_public_root" };
+  }
+
+  return { ok: true, filePath: resolved };
+}
+
 function serveFile(res, filePath) {
   const ext = path.extname(filePath);
   const contentTypes = {
@@ -210,7 +270,10 @@ function serveFile(res, filePath) {
       res.end("Not found");
       return;
     }
-    res.writeHead(200, { "Content-Type": contentTypes[ext] || "text/plain; charset=utf-8" });
+    res.writeHead(200, {
+      "Content-Type": contentTypes[ext] || "text/plain; charset=utf-8",
+      "X-Content-Type-Options": "nosniff"
+    });
     res.end(data);
   });
 }
@@ -236,8 +299,20 @@ function createServer() {
       return;
     }
 
-    const target = req.url === "/" ? "/index.html" : req.url;
-    serveFile(res, path.join(publicDir, target));
+    const requested = req.url === "/" ? "/index.html" : req.url;
+    const resolvedFile = resolvePublicFile(requested);
+
+    if (!resolvedFile.ok) {
+      // Rejected before any filesystem read is attempted.
+      res.writeHead(403, {
+        "Content-Type": "text/plain; charset=utf-8",
+        "X-Content-Type-Options": "nosniff"
+      });
+      res.end(`Forbidden: ${PUBLIC_FILE_REASONS[resolvedFile.reason] || "invalid path"}`);
+      return;
+    }
+
+    serveFile(res, resolvedFile.filePath);
   });
 }
 
@@ -251,5 +326,7 @@ if (require.main === module) {
 module.exports = {
   analyzeMessage,
   scenarios,
-  createServer
+  createServer,
+  resolvePublicFile,
+  publicDir
 };
